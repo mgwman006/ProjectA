@@ -116,23 +116,22 @@ void stop(void)
 
 }
 
-/*
+
 int setup_gpio(void)
-//{
+{
     //Set up wiring Pi
      wiringPiSetup();
     //setting up the buttons
-    #pinMode(PLAY_BUTTON, INPUT);
-    #pullUpDnControl(PLAY_BUTTON, PUD_UP);
-    #pullUpDnControl(STOP_BUTTON, PUD_UP);
-    #wiringPiISR(PLAY_BUTTON,INT_EDGE_FALLING,play);
-   # wiringPiISR(STOP_BUTTON,INT_EDGE_FALLING,stop);
+    pinMode(PLAY_BUTTON, INPUT);
+    pullUpDnControl(PLAY_BUTTON, PUD_UP);
+    pullUpDnControl(STOP_BUTTON, PUD_UP);
+    wiringPiISR(PLAY_BUTTON,INT_EDGE_FALLING,play);
+    wiringPiISR(STOP_BUTTON,INT_EDGE_FALLING,stop);
 
     //setting up the SPI interface
     wiringPiSPISetup(SPI_CHAN, SPI_SPEED);
     return 0;
 }
-*/
 
 
 void *playThread(void *threadargs)

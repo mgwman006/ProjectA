@@ -22,25 +22,13 @@ long dissmissTime=0;
 char auth[] = "YourAuthToken"; // Put your token here
 BlynkTimer timer; // Create a Timer object called "timer"!
 
-static BlynkTransportSocket _blynkTransport;
-BlynkSocket Blynk(_blynkTransport);
- 
-static const char *auth, *serv;
-static uint16_t port;
-
-int buttonPin = 17; //GPIO17 Pin on the Pi
-bool buttonState = false;  //Used to store the previous state of the button
 
 void setup()
 {
  // SerialKX.begin(9600);
-  //Blynk.begin(auth);
-  Blynk.begin(auth, serv, port);
-  Blynk.begin(auth, serv, port);
-  pinMode(buttonPin, INPUT); //Set GPIO17 as input
-  pullUpDnControl (buttonPin, PUD_UP); //Set GPIO17 internal pull up
+  Blynk.begin(auth);
 
-  //timer.setInterval(1000L, sendUptime); //  Here you set interval (1sec) and which function to call 
+  timer.setInterval(1000L, sendUptime); //  Here you set interval (1sec) and which function to call 
 }
 
 void sendUptime()
@@ -55,25 +43,8 @@ void sendUptime()
 
 void loop()
 {
-  //Blynk.run(); // all the Blynk magic happens here
-  
-  //timer.run(); // BlynkTimer is working...
-  
-  Blynk.run();
- 
-    if(buttonState != digitalRead(buttonPin)) //check the button state against its last known value, if true:
-    {
-       if(digitalRead(buttonPin) == TRUE) //if true, set the Virtual Pin "V0" to a value of 0 (full off)
-        {
-            Blynk.virtualWrite(V0, 0); 
-        }
-        else{  
-            Blynk.virtualWrite(V0, 255);  //Else we set the virtual pin "V0" to a value of 255 (full on)
-        }
-    }   
-    else {}    //if last value = current value, we do nothing. 
-    buttonState = digitalRead(buttonPin);  //update the button state.
-  
+  Blynk.run(); // all the Blynk magic happens here
+  timer.run(); // BlynkTimer is working...
 }
 
 
@@ -182,7 +153,7 @@ void *adcThread(void *threadargs)
     pthread_exit(NULL);
     
 }
-/*
+
 
 int main()
 {
@@ -192,7 +163,10 @@ int main()
         return 0;
     }
 
-   
+    /* Initialize thread with parameters
+     * Set the play thread to have a 99 priority
+     * Read https://docs.oracle.com/cd/E19455-01/806-5257/attrib-16/index.html
+     */
 
     //Write your logic here
     pthread_attr_t tattr;
@@ -200,11 +174,11 @@ int main()
     int newprio = 99;
     sched_param param;
 
-    pthread_attr_init (&tattr); // initialized with default attributes 
-    pthread_attr_getschedparam (&tattr, &param); // safe to get existing scheduling param 
-    param.sched_priority = newprio; // set the priority; others are unchanged 
-    pthread_attr_setschedparam (&tattr, &param); // setting the new scheduling param 
-    pthread_create(&thread_id, &tattr, adcThread, (void *)1); // with new priority specified 
+    pthread_attr_init (&tattr); /* initialized with default attributes */
+    pthread_attr_getschedparam (&tattr, &param); /* safe to get existing scheduling param */
+    param.sched_priority = newprio; /* set the priority; others are unchanged */
+    pthread_attr_setschedparam (&tattr, &param); /* setting the new scheduling param */
+    pthread_create(&thread_id, &tattr, adcThread, (void *)1); /* with new priority specified */
     
     while(1)
     {
@@ -238,19 +212,5 @@ int main()
     pthread_join(thread_id, NULL);
     pthread_exit(NULL);
 
-    return 0;
-}
-
-*/
-
-int main(int argc, char* argv[])
-{
-    parse_options(argc, argv, auth, serv, port);
- 
-    setup();
-    while(true) {
-        loop();
-    }
- 
     return 0;
 }

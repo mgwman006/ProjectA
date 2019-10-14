@@ -27,10 +27,6 @@ void play(void)
                 return 0;
            }
 
-    /* Initialize thread with parameters
-     * Set the play thread to have a 99 priority
-     * Read https://docs.oracle.com/cd/E19455-01/806-5257/attrib-16/index.html
-          */
 
     //Write your logic here
           pthread_attr_t tattr;
@@ -116,23 +112,6 @@ void stop(void)
 
 }
 
-/*
-int setup_gpio(void)
-//{
-    //Set up wiring Pi
-     wiringPiSetup();
-    //setting up the buttons
-    #pinMode(PLAY_BUTTON, INPUT);
-    #pullUpDnControl(PLAY_BUTTON, PUD_UP);
-    #pullUpDnControl(STOP_BUTTON, PUD_UP);
-    #wiringPiISR(PLAY_BUTTON,INT_EDGE_FALLING,play);
-   # wiringPiISR(STOP_BUTTON,INT_EDGE_FALLING,stop);
-
-    //setting up the SPI interface
-    wiringPiSPISetup(SPI_CHAN, SPI_SPEED);
-    return 0;
-}
-*/
 
 
 void *playThread(void *threadargs)
@@ -146,13 +125,7 @@ void *playThread(void *threadargs)
     //You need to only be playing if the stopped flag is false
     while(!stopped)
     {
-        //Code to suspend playing if paused
-        //TODO
-        //while(!playing)
-        //    continue;
-
-        //Write the buffer out to SPI
-        //TODO
+        
         wiringPiSPIDataRW (SPI_CHAN, buffer[bufferReading][buffer_location], 2) ;
 
         //Do some maths to check if you need to toggle buffers

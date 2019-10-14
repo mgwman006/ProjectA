@@ -24,7 +24,7 @@
 #endif
 #include <BlynkSocket.h>
 #include <BlynkOptionsParser.h>
-
+#include <BlynkWidgets.h>
 
 
 //Define buttons
@@ -33,12 +33,18 @@
 #define DISMISS_ALARM_BUTTON 5 
 #define STOP_START_BUTTON 6 
 
+//RTC
+const char RTCAddr = 0x6f;
 
 
 //SPI Settings
 #define BASE 100 
 #define SPI_CHAN 0// Write your value here
 #define SPI_SPEED 200000// Write your value here
+
+//SPI Settings
+#define SPI_CHAN1 1// Write your value here
+#define SPI_SPEED1 220000// Write your value here
 
 
 //Function definitions

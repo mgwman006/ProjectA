@@ -14,9 +14,18 @@
 #include <math.h>
 #include <pthread.h>
 #include <iostream>
-#include <SPI.h>
-#include <Ethernet.h>
-#include <BlynkSimpleEthernet.h>
+
+
+#define BLYNK_PRINT stdout
+#ifdef RASPBERRY
+  #include <BlynkApiWiringPi.h>
+#else
+  #include <BlynkApiLinux.h>
+#endif
+#include <BlynkSocket.h>
+#include <BlynkOptionsParser.h>
+
+
 
 //Define buttons
 #define CHANGE_INTERVAL_BUTTON 1 

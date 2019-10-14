@@ -19,8 +19,9 @@ bool threadReady = false;
 bool start= false; 
 long lastInterruptTime =0;
 long dissmissTime=0;
-char auth[] = "YourAuthToken"; // Put your token here
-BlynkTimer timer; // Create a Timer object called "timer"!
+int RTC; //Holds the RTC instance
+//char auth[] = "YourAuthToken"; // Put your token here
+//BlynkTimer timer; // Create a Timer object called "timer"!
 
 static BlynkTransportSocket _blynkTransport;
 BlynkSocket Blynk(_blynkTransport);
@@ -33,14 +34,11 @@ bool buttonState = false;  //Used to store the previous state of the button
 
 void setup()
 {
- // SerialKX.begin(9600);
-  //Blynk.begin(auth);
-  Blynk.begin(auth, serv, port);
+ 
   Blynk.begin(auth, serv, port);
   pinMode(buttonPin, INPUT); //Set GPIO17 as input
   pullUpDnControl (buttonPin, PUD_UP); //Set GPIO17 internal pull up
-
-  //timer.setInterval(1000L, sendUptime); //  Here you set interval (1sec) and which function to call 
+ 
 }
 
 void sendUptime()
@@ -50,30 +48,70 @@ void sendUptime()
   // You can send anything with any interval using this construction
   // Don't send more that 10 values per second
 
-  Blynk.virtualWrite(V0, millis() / 1000);
+  Blynk.virtualWrite(V1, tempC);
+  /*
+  Blynk.virtualWrite(V1, tempC);
+  Blynk.virtualWrite(V2, humidity);
+  Blynk.virtualWrite(V3, light);
+  */
 }
+
+BLYNK_WRITE(V4) //Button Widget is writing to pin V1
+{
+  int pinData = param.asInt();
+  if(pinData == 1)
+  {
+    sendUptime();
+    start_stop (void);
+  }
+   
+}
+
+
+BLYNK_WRITE(V5) //Button Widget is writing to pin V1
+{
+  //reset
+  int pinData = param.asInt();
+  if(pinData == 1)
+  {
+    sendUptime();
+    start_stop (void);
+  }
+
+}
+
+
+BLYNK_WRITE(V6) //Button Widget is writing to pin V1
+{
+
+  //dismiss
+  int pinData = param.asInt();
+  if(pinData == 1)
+  {
+    sendUptime();
+    start_stop (void);
+  }
+
+}
+
+BLYNK_WRITE(V7) //Button Widget is writing to pin V1
+{
+
+  //change interval
+  int pinData = param.asInt();
+  if(pinData == 1)
+  {
+    sendUptime();
+    start_stop (void);
+  }
+
+}
+
 
 void loop()
 {
-  //Blynk.run(); // all the Blynk magic happens here
-  
-  //timer.run(); // BlynkTimer is working...
   
   Blynk.run();
- 
-    if(buttonState != digitalRead(buttonPin)) //check the button state against its last known value, if true:
-    {
-       if(digitalRead(buttonPin) == TRUE) //if true, set the Virtual Pin "V0" to a value of 0 (full off)
-        {
-            Blynk.virtualWrite(V0, 0); 
-        }
-        else{  
-            Blynk.virtualWrite(V0, 255);  //Else we set the virtual pin "V0" to a value of 255 (full on)
-        }
-    }   
-    else {}    //if last value = current value, we do nothing. 
-    buttonState = digitalRead(buttonPin);  //update the button state.
-  
 }
 
 
@@ -89,6 +127,7 @@ void start_stop (void)
 
 }
 
+
 void change_interval(void)
 {
      long interrupt_time = millis();
@@ -98,7 +137,9 @@ void change_interval(void)
      }
     lastInterruptTime=interrupt_time;
 
+
 }
+
 
 void dismiss_alarm(void)
 {
@@ -114,6 +155,7 @@ void dismiss_alarm(void)
 
 }
 
+
 void reset_time(void)
 {
      long interrupt_time = millis();
@@ -125,6 +167,7 @@ void reset_time(void)
 
 }
 
+
 int setup_gpio(void)
 {
     //Set up wiring Pi
@@ -134,6 +177,9 @@ int setup_gpio(void)
     wiringPiSPISetup(SPI_CHAN, SPI_SPEED);
     wiringPiSPISetup(SPI_CHAN1, SPI_SPEED1);
     mcp3004Setup(BASE,SPI_CHAN);
+
+   //setting up the I2C interface
+    RTC = wiringPiI2CSetup(RTCAddr);
 
     //setting up the buttons
     pinMode(CHANGE_INTERVAL_BUTTON, INPUT);
@@ -182,6 +228,8 @@ void *adcThread(void *threadargs)
     pthread_exit(NULL);
     
 }
+
+
 /*
 
 int main()
@@ -192,7 +240,9 @@ int main()
         return 0;
     }
 
-   
+    wiringPiI2CWriteReg8(RTC, HOUR, 0x13+TIMEZONE);
+    wiringPiI2CWriteReg8(RTC, MIN, 0x56);
+    wiringPiI2CWriteReg8(RTC, SEC, 0x80);
 
     //Write your logic here
     pthread_attr_t tattr;
@@ -243,12 +293,15 @@ int main()
 
 */
 
+
+
 int main(int argc, char* argv[])
 {
     parse_options(argc, argv, auth, serv, port);
  
     setup();
-    while(true) {
+    while(true) 
+    {
         loop();
     }
  
